@@ -1,15 +1,19 @@
+import { ChatForm } from "@/components/ChatForm";
+
 export function Home() {
   return (
-    <div className="flex flex-col items-center justify-center h-full mx-auto w-[100%] max-w-[768px] bg-base-300">
-      <div className="flex-grow overflow-y-auto p-4 md:p-6 relative bg-amber-950">
-        <p>
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Explicabo
-          alias molestiae, cumque, possimus ab maiores inventore commodi enim
-          suscipit porro iusto ratione, doloremque ipsa dolores necessitatibus
-          cupiditate excepturi fugit dignissimos.
-        </p>
+    <div className="flex flex-col items-center justify-center h-full">
+      <div className="flex-grow w-full overflow-y-auto p-4 md:p-6 relative">
+        <div className="mx-auto w-[100%] max-w-[768px]">
+          <p>
+            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Explicabo
+            alias molestiae, cumque, possimus ab maiores inventore commodi enim
+            suscipit porro iusto ratione, doloremque ipsa dolores necessitatibus
+            cupiditate excepturi fugit dignissimos.
+          </p>
+        </div>
       </div>
-      <form className="bg-amber-700 w-full">form</form>
+      <ChatForm currentMessage="" />
     </div>
   );
 }
