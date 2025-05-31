@@ -1,13 +1,14 @@
 import { Outlet, useLocation } from "react-router";
 
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+
 export function Layout() {
   let location = useLocation();
-  console.log(location);
+
   return (
     <div className="flex flex-col h-screen">
-      <header>
-        <h1>Dashboard</h1>
-      </header>
+      <Header />
       <main
         className={`flex-grow${
           location.pathname === "/" ? " overflow-y-auto" : ""
@@ -15,7 +16,7 @@ export function Layout() {
       >
         <Outlet />
       </main>
-      <footer>footer</footer>
+      <Footer />
     </div>
   );
 }
