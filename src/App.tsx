@@ -1,8 +1,5 @@
 function App() {
-
-  return (
-    <div>Ollaix UI</div>
-  )
+  return <div>Ollaix UI</div>;
 }
 
-export default App
+export default App;
