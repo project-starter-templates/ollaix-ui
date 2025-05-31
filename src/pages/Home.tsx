@@ -1,25 +1,23 @@
 import { ChatForm } from "@/components/ChatForm";
-import { InitialMessage } from "@/components/InitialMessage";
 import { useChat } from "@/hooks/useChat";
+import { ChatContainer } from "@/components/ChatContainer";
 
 export function Home() {
   const {
+    messages,
     currentMessage,
     setCurrentMessage,
     selectedModel,
     setSelectedModel,
     isLoading,
+    error,
     handleSendMessage,
     handleStopGeneration,
   } = useChat();
 
   return (
     <div className="flex flex-col items-center justify-center h-full">
-      <div className="flex-grow w-full overflow-y-auto p-4 md:p-6 relative">
-        <div className="mx-auto w-[100%] max-w-[768px]">
-          <InitialMessage />
-        </div>
-      </div>
+      <ChatContainer messages={messages} isLoading={isLoading} error={error} />
       <ChatForm
         currentMessage={currentMessage}
         onInputChange={setCurrentMessage}
