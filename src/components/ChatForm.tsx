@@ -7,12 +7,12 @@ import type { LlmModelType } from "@/utils/types";
 
 type Props = {
   currentMessage: string;
-  onInputChange?: (value: string) => void;
-  selectedModel?: string;
-  onModelChange?: (model: LlmModelType) => void;
-  onSendMessage?: () => void;
-  onStopGeneration?: () => void;
-  isLoading?: boolean;
+  onInputChange: (value: string) => void;
+  selectedModel: string;
+  onModelChange: (model: LlmModelType) => void;
+  onSendMessage: () => void;
+  onStopGeneration: () => void;
+  isLoading: boolean;
 };
 
 export const ChatForm = ({

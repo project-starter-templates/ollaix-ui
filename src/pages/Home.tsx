@@ -1,19 +1,34 @@
 import { ChatForm } from "@/components/ChatForm";
+import { InitialMessage } from "@/components/InitialMessage";
+import { useChat } from "@/hooks/useChat";
 
 export function Home() {
+  const {
+    currentMessage,
+    setCurrentMessage,
+    selectedModel,
+    setSelectedModel,
+    isLoading,
+    handleSendMessage,
+    handleStopGeneration,
+  } = useChat();
+
   return (
     <div className="flex flex-col items-center justify-center h-full">
       <div className="flex-grow w-full overflow-y-auto p-4 md:p-6 relative">
         <div className="mx-auto w-[100%] max-w-[768px]">
-          <p>
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Explicabo
-            alias molestiae, cumque, possimus ab maiores inventore commodi enim
-            suscipit porro iusto ratione, doloremque ipsa dolores necessitatibus
-            cupiditate excepturi fugit dignissimos.
-          </p>
+          <InitialMessage />
         </div>
       </div>
-      <ChatForm currentMessage="" />
+      <ChatForm
+        currentMessage={currentMessage}
+        onInputChange={setCurrentMessage}
+        selectedModel={selectedModel}
+        onModelChange={setSelectedModel}
+        onSendMessage={handleSendMessage}
+        onStopGeneration={handleStopGeneration}
+        isLoading={isLoading}
+      />
     </div>
   );
 }
