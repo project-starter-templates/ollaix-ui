@@ -60,10 +60,10 @@ export const ChatForm = ({
   };
 
   return (
-    <div className="flex flex-col items-center gap-2 w-[100%] max-w-[768px] p-3 border-2 border-base-content/20 rounded-2xl shadow-md">
+    <div className="flex flex-col items-center gap-2 w-[100%] max-w-[768px] px-2 pt-2">
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col w-full justify-between gap-0.5"
+        className="flex flex-col w-full justify-between gap-0.5 p-3 border-2 border-base-content/20 rounded-2xl shadow-sm"
       >
         <textarea
           ref={inputRef}
@@ -98,7 +98,7 @@ export const ChatForm = ({
               isLoading ? " btn-error" : " btn-secondary"
             }`}
             aria-label={`${isLoading ? "Stop generation" : "Send message"}`}
-            disabled={isLoading ? true : !currentMessage.trim()}
+            disabled={isLoading ? false : !currentMessage.trim()}
           >
             {isLoading ? <CircleStop color="#333" /> : <ArrowUp />}
           </button>
