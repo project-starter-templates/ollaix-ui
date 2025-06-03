@@ -1,6 +1,7 @@
 # Ollaix – Your Smart Virtual Assistant 🤖
 
 An intelligent virtual assistant designed to answer your questions and help you with your daily tasks.
+
 **Ollaix** is a modern chatbot-style web interface built with React, TypeScript, Vite, Tailwind CSS, and DaisyUI. Inspired by the ChatGPT user experience, this app enables users to interact with a smart assistant through a clean, responsive, simple, fast and user-friendly.
 
 ---
@@ -82,8 +83,8 @@ Before you begin, ensure you have the following installed:
     VITE_API_BASE_URL=http://localhost:8000
     ```
 
-    > [!WARNING] 
-    > This frontend requires a backend API to function. Ensure your backend is running and accessible at the specified `VITE_API_BASE_URL`.
+> [!WARNING]
+> This frontend requires a backend API to function. Ensure your backend is running and accessible at the specified `VITE_API_BASE_URL`.
 
 4.  **Run the development server:**
 
