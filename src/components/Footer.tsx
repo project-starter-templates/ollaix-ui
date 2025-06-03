@@ -1,8 +1,8 @@
 export function Footer() {
   return (
-    <footer className="footer sm:footer-horizontal footer-center text-base-content p-2">
+    <footer className="footer sm:footer-horizontal footer-center text-base-content p-1.5">
       <aside>
-        <ul className="flex justify-center items-center gap-2 text-xs text-base-content/70">
+        <ul className="flex justify-center items-center gap-2 text-[11px] text-base-content/70">
           <li>
             <img
               src="https://macktireh.dev/images/mack.png"
