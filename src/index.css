@@ -4,6 +4,12 @@
 }
 @plugin "@tailwindcss/typography";
 
+.chat {
+  .list-inside {
+    list-style-position: unset;
+  }
+}
+
 .prose {
   :root & {
     :where(code):not(pre > code) {
