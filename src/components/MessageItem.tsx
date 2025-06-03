@@ -16,7 +16,7 @@ export function MessageItem({ message, isDarkMode = true }: Props) {
   const isUser = message.sender === "user";
   const bubbleClasses = isUser
     ? isDarkMode ? "bg-base-content/4" : "bg-base-content/8"
-    : `bg-base-100 w-full ${message.isError ? "chat-bubble-error" : ""}`;
+    : `bg-base-100 w-full`;
 
   const components = createMarkdownComponents({ isDarkMode, isUser });
 

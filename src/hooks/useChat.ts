@@ -232,6 +232,18 @@ export const useChat = () => {
     if (abortControllerRef.current && isLoading) {
       abortControllerRef.current.abort();
       setIsLoading(false);
+      const lastMessage = messages[messages.length - 1];
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === lastMessage.id
+            ? {
+                ...msg,
+                isError: true,
+                isThinkingLoading: false,
+              }
+            : msg
+        )
+      );
     }
   }, [isLoading]);
 
