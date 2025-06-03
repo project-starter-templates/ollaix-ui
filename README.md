@@ -1,6 +1,4 @@
-# Ollaix – Your Smart Virtual Assistant 🤖
-
-An intelligent virtual assistant designed to answer your questions and help you with your daily tasks.
+# Ollaix UI 🤖
 
 **Ollaix** is a modern chatbot-style web interface built with React, TypeScript, Vite, Tailwind CSS, and DaisyUI. Inspired by the ChatGPT user experience, this app enables users to interact with a smart assistant through a clean, responsive, simple, fast and user-friendly.
 
