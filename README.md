@@ -82,7 +82,8 @@ Before you begin, ensure you have the following installed:
     VITE_API_BASE_URL=http://localhost:8000
     ```
 
-    > ⚠️ **Note:** This frontend requires a backend API to function. Ensure your backend is running and accessible at the specified `VITE_API_BASE_URL`.
+    > [!WARNING] 
+    > This frontend requires a backend API to function. Ensure your backend is running and accessible at the specified `VITE_API_BASE_URL`.
 
 4.  **Run the development server:**
 
