@@ -10,4 +10,5 @@ export interface Message {
   model?: LlmModelType;
   isError?: boolean;
   loaded?: boolean;
+  isThinkingLoading?: boolean;
 }

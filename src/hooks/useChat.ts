@@ -29,7 +29,8 @@ export const useChat = () => {
     const thinkingMatches = [];
     let match;
 
-    while ((match = thinkingRegex.exec(content)) !== null) {
+    const tempContent = content;
+    while ((match = thinkingRegex.exec(tempContent)) !== null) {
       thinkingMatches.push(match[1].trim());
     }
 
@@ -62,13 +63,14 @@ export const useChat = () => {
         sender: "ai",
         model: selectedModel,
         thinkingContent: "",
+        isThinkingLoading: false,
+        loaded: false,
       },
     ]);
 
-    setCurrentMessage(""); // Clear input after sending
+    setCurrentMessage("");
     setIsLoading(true);
 
-    // Abort previous request if any
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -102,11 +104,10 @@ export const useChat = () => {
 
       const decoder = new TextDecoder();
       let accumulatedResponseText = "";
-
       while (true) {
         const { done, value } = await reader.read();
         if (done) {
-          // const cleanedFinalText = cleanThinkTags(accumulatedResponseText);
+          // Once finished, make sure that all content is correctly parsed.
           const { thinking, cleanContent } = extractThinkingContent(
             accumulatedResponseText
           );
@@ -118,6 +119,7 @@ export const useChat = () => {
                     content: cleanContent,
                     thinkingContent: thinking,
                     loaded: true,
+                    isThinkingLoading: false,
                   }
                 : msg
             )
@@ -126,7 +128,6 @@ export const useChat = () => {
         }
         if (signal.aborted) {
           console.log("Fetch aborted");
-          // const cleanedAbortedText = cleanThinkTags(accumulatedResponseText);
           const { thinking, cleanContent } = extractThinkingContent(
             accumulatedResponseText
           );
@@ -138,6 +139,7 @@ export const useChat = () => {
                     content: `${cleanContent} (Annulé)`,
                     thinkingContent: thinking,
                     isError: true,
+                    isThinkingLoading: false,
                   }
                 : msg
             )
@@ -147,14 +149,54 @@ export const useChat = () => {
         const chunk = decoder.decode(value, { stream: true });
         accumulatedResponseText += chunk;
 
-        // const cleanedStreamingText = cleanThinkTags(accumulatedResponseText);
-        const { thinking, cleanContent } = extractThinkingContent(
-          accumulatedResponseText
-        );
+        // Initialize for each chunk
+        let tempThinkingContent = "";
+        let tempCleanContent = "";
+        let currentIsThinkingLoading = false;
+
+        const thinkStartTag = "<think>";
+        const thinkEndTag = "</think>";
+
+        let startIndex = accumulatedResponseText.indexOf(thinkStartTag);
+        let endIndex = accumulatedResponseText.indexOf(thinkEndTag);
+
+        if (startIndex !== -1 && (endIndex === -1 || endIndex < startIndex)) {
+          // If <think> is found but not </think> (or </think> is before <think>), then thinking is in progress
+          currentIsThinkingLoading = true;
+          tempThinkingContent = accumulatedResponseText.substring(
+            startIndex + thinkStartTag.length
+          );
+          tempCleanContent = accumulatedResponseText.substring(0, startIndex);
+        } else if (
+          startIndex !== -1 &&
+          endIndex !== -1 &&
+          endIndex > startIndex
+        ) {
+          // If both tags are found and </think> is after <think>, then thinking is finished for this chunk
+          currentIsThinkingLoading = false;
+          tempThinkingContent = accumulatedResponseText.substring(
+            startIndex + thinkStartTag.length,
+            endIndex
+          );
+          tempCleanContent =
+            accumulatedResponseText.substring(0, startIndex) +
+            accumulatedResponseText.substring(endIndex + thinkEndTag.length);
+        } else {
+          // No <think>...</think> tag or only normal text
+          currentIsThinkingLoading = false;
+          tempThinkingContent = "";
+          tempCleanContent = accumulatedResponseText;
+        }
+
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === aiMessageId
-              ? { ...msg, content: cleanContent, thinkingContent: thinking }
+              ? {
+                  ...msg,
+                  content: tempCleanContent.trim(),
+                  thinkingContent: tempThinkingContent.trim(),
+                  isThinkingLoading: currentIsThinkingLoading,
+                }
               : msg
           )
         );
@@ -174,6 +216,7 @@ export const useChat = () => {
                   content: `Erreur: ${errorMessage}`,
                   model: selectedModel,
                   isError: true,
+                  isThinkingLoading: false,
                 }
               : msg
           )

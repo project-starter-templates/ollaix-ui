@@ -15,7 +15,7 @@ interface Props {
 export function MessageItem({ message, isDarkMode = true }: Props) {
   const isUser = message.sender === "user";
   const bubbleClasses = isUser
-    ? "bg-base-content/8"
+    ? isDarkMode ? "bg-base-content/4" : "bg-base-content/8"
     : `bg-base-100 w-full ${message.isError ? "chat-bubble-error" : ""}`;
 
   const components = createMarkdownComponents({ isDarkMode, isUser });
@@ -29,10 +29,13 @@ export function MessageItem({ message, isDarkMode = true }: Props) {
         className={`chat-bubble ${bubbleClasses} prose prose-sm max-w-none break-words before:hidden rounded-none`}
       >
         {!isUser && message.thinkingContent && (
-          <ThinkingDisplay thinkingContent={message.thinkingContent} />
+          <ThinkingDisplay
+            thinkingContent={message.thinkingContent}
+            isLoadingThinking={message.isThinkingLoading || false}
+          />
         )}
 
-        {message.content === "" && !isUser && !message.isError ? (
+        {message.content === "" && !isUser && !message.isError && !message.isThinkingLoading ? (
           <span className="loading loading-dots loading-sm"></span>
         ) : (
           <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
@@ -42,7 +45,9 @@ export function MessageItem({ message, isDarkMode = true }: Props) {
       </div>
 
       <div className="chat-footer text-xs opacity-70 pb-1">
-        {!isUser && message.loaded && <MessageActionsButton text={message.content} />}
+        {!isUser && message.loaded && (
+          <MessageActionsButton text={message.content} />
+        )}
       </div>
     </div>
   );

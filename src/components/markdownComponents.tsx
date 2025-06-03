@@ -46,8 +46,7 @@ export function createMarkdownComponents({
           language={language}
           PreTag="div"
           wrapLines={false}
-          // showLineNumbers={true}
-
+          showLineNumbers={false}
           customStyle={{
             margin: 0,
             borderRadius: `${"0.5rem"}`,

@@ -4,9 +4,13 @@ import { useTranslation } from "react-i18next";
 
 interface Props {
   thinkingContent: string;
+  isLoadingThinking: boolean;
 }
 
-export const ThinkingDisplay = ({ thinkingContent }: Props) => {
+export const ThinkingDisplay = ({
+  thinkingContent,
+  isLoadingThinking,
+}: Props) => {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -18,8 +22,11 @@ export const ThinkingDisplay = ({ thinkingContent }: Props) => {
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center gap-2 p-3 hover:bg-base-200/40 transition-colors text-left cursor-pointer"
       >
-        {/* <SparklesIcon className="w-4 h-4 text-yellow-600 flex-shrink-0" /> */}
-        <Lightbulb className="w-4 h-4 text-yellow-600 flex-shrink-0" />
+        {isLoadingThinking ? (
+          <span className="loading loading-sm"></span>
+        ) : (
+          <Lightbulb className="w-4 h-4 text-yellow-600 flex-shrink-0" />
+        )}
         <span className="text-sm font-medium text-base-content/80 flex-grow">
           {t("chat.message.thinking.title")}
         </span>
