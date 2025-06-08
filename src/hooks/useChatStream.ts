@@ -7,7 +7,7 @@ import type { LlmModelType, Message } from "@/utils/types";
 /**
  * Main hook to manage chat
  */
-export const useChat = () => {
+export const useChatStream = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const [selectedModel, setSelectedModel] =
@@ -45,7 +45,7 @@ export const useChat = () => {
     (content: string): Message => ({
       id: crypto.randomUUID(),
       content: content.trim(),
-      sender: "user",
+      role: "user",
     }),
     []
   );
@@ -57,7 +57,7 @@ export const useChat = () => {
     (model: LlmModelType): Message => ({
       id: crypto.randomUUID(),
       content: "",
-      sender: "ai",
+      role: "assistant",
       model,
       thinkingContent: "",
       isThinkingLoading: false,
@@ -130,7 +130,7 @@ export const useChat = () => {
 
       // Marks the last message as interrupted
       const lastMessage = messages[messages.length - 1];
-      if (lastMessage?.sender === "ai") {
+      if (lastMessage?.role === "assistant") {
         updateMessage(lastMessage.id, {
           isError: true,
           isThinkingLoading: false,
