@@ -37,7 +37,6 @@ export const ThinkingDisplay = ({
             </span>
           </>
         )}
-
         {isExpanded ? (
           <ChevronUpIcon className="w-4 h-4 text-base-content/60" />
         ) : (
