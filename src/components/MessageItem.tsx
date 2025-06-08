@@ -13,9 +13,11 @@ interface Props {
 }
 
 export function MessageItem({ message, isDarkMode = true }: Props) {
-  const isUser = message.sender === "user";
+  const isUser = message.role === "user";
   const bubbleClasses = isUser
-    ? isDarkMode ? "bg-base-content/4" : "bg-base-content/8"
+    ? isDarkMode
+      ? "bg-base-content/4"
+      : "bg-base-content/8"
     : `bg-base-100 w-full`;
 
   const components = createMarkdownComponents({ isDarkMode, isUser });
@@ -35,7 +37,10 @@ export function MessageItem({ message, isDarkMode = true }: Props) {
           />
         )}
 
-        {message.content === "" && !isUser && !message.isError && !message.isThinkingLoading ? (
+        {message.content === "" &&
+        !isUser &&
+        !message.isError &&
+        !message.isThinkingLoading ? (
           <span className="loading loading-dots loading-sm"></span>
         ) : (
           <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>

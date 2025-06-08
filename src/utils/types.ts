@@ -6,7 +6,7 @@ export interface Message {
   id: string;
   content: string;
   thinkingContent?: string;
-  sender: "user" | "ai";
+  role: "user" | "assistant";
   model?: LlmModelType;
   isError?: boolean;
   loaded?: boolean;

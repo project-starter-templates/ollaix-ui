@@ -1,5 +1,5 @@
 import { ChatForm } from "@/components/ChatForm";
-import { useChat } from "@/hooks/useChat";
+import { useChatStream } from "@/hooks/useChatStream";
 import { ChatContainer } from "@/components/ChatContainer";
 
 export function Home() {
@@ -13,7 +13,7 @@ export function Home() {
     error,
     handleSendMessage,
     handleStopGeneration,
-  } = useChat();
+  } = useChatStream();
 
   return (
     <div className="flex flex-col items-center justify-center h-full">
