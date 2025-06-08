@@ -17,10 +17,9 @@ export function ChatHeader({ message, isUser }: Props) {
           alt="Ollaix"
           className="rounded-full size-8"
         />
-        <span className="text-[12px]">
-          IA{" "}
+        <span className="text-[13px]">
           {message.model
-            ? `(${AVAILABLE_MODELS[message.model] || message.model})`
+            ? `${AVAILABLE_MODELS[message.model] || message.model}`
             : ""}
         </span>
       </div>

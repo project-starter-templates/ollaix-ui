@@ -28,7 +28,9 @@ export const ThinkingDisplay = ({
           <Lightbulb className="w-4 h-4 text-yellow-600 flex-shrink-0" />
         )}
         <span className="text-sm font-medium text-base-content/80 flex-grow">
-          {t("chat.message.thinking.title")}
+          {isLoadingThinking
+            ? t("chat.message.thinking.loading.title")
+            : t("chat.message.thinking.title")}
         </span>
         {isExpanded ? (
           <ChevronUpIcon className="w-4 h-4 text-base-content/60" />
