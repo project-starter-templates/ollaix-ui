@@ -23,13 +23,21 @@ export const ThinkingDisplay = ({
         className="w-full flex items-center gap-2 p-3 hover:bg-base-200/40 transition-colors text-left cursor-pointer"
       >
         {isLoadingThinking ? (
-          <span className="loading loading-sm"></span>
+          <>
+            <span className="loading loading-sm"></span>
+            <span className="text-sm font-medium text-base-content/80 flex-grow">
+              {t("chat.message.thinking.loading.title")}
+            </span>
+          </>
         ) : (
-          <Lightbulb className="w-4 h-4 text-yellow-600 flex-shrink-0" />
+          <>
+            <Lightbulb className="w-4 h-4 text-yellow-600 flex-shrink-0" />
+            <span className="text-sm font-medium text-base-content/80 flex-grow">
+              {t("chat.message.thinking.title")}
+            </span>
+          </>
         )}
-        <span className="text-sm font-medium text-base-content/80 flex-grow">
-          {t("chat.message.thinking.title")}
-        </span>
+
         {isExpanded ? (
           <ChevronUpIcon className="w-4 h-4 text-base-content/60" />
         ) : (
