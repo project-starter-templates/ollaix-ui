@@ -2,12 +2,12 @@ import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowUp, CircleStop } from "lucide-react";
 
-import { AVAILABLE_MODELS } from "@/utils";
-import type { LlmModelType } from "@/utils/types";
+import type { LlmModelType, ModelType } from "@/utils/types";
 
 type Props = {
   currentMessage: string;
   onInputChange: (value: string) => void;
+  models: ModelType[];
   selectedModel: string;
   onModelChange: (model: LlmModelType) => void;
   onSendMessage: () => void;
@@ -18,6 +18,7 @@ type Props = {
 export const ChatForm = ({
   currentMessage,
   onInputChange,
+  models,
   selectedModel,
   onModelChange,
   onSendMessage,
@@ -71,26 +72,30 @@ export const ChatForm = ({
           value={currentMessage}
           onChange={handleTextareaChange}
           onKeyDown={handleKeyDown}
-          disabled={isLoading}
+          disabled={isLoading || models.length === 0}
           aria-label="Message to send"
           rows={1}
           className="textarea textarea-md w-full min-h-[10px] max-h-30 resize-none border-none outline-none focus:ring-0 focus:ring-offset-0 focus:border-none focus:outline-none disabled:bg-base-100"
         />
         <div className="flex w-full justify-between">
-          <select
-            id="model"
-            value={selectedModel}
-            onChange={(e) => onModelChange(e.target.value as LlmModelType)}
-            className="select w-35 border-none h-8 pl-2  disabled:bg-base-100"
-            disabled={isLoading}
-            aria-label="Select a model"
-          >
-            {Object.entries(AVAILABLE_MODELS).map(([apiKey, displayName]) => (
-              <option key={apiKey} value={apiKey}>
-                {displayName}
-              </option>
-            ))}
-          </select>
+          {models.length === 0 ? (
+            <div className="skeleton h-6 w-35"></div>
+          ) : (
+            <select
+              id="model"
+              value={selectedModel}
+              onChange={(e) => onModelChange(e.target.value as LlmModelType)}
+              className="select w-35 border-none h-8 pl-2  disabled:bg-base-100"
+              disabled={isLoading}
+              aria-label="Select a model"
+            >
+              {models.sort((a, b) => b.name.localeCompare(a.name)).map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name}
+                </option>
+              ))}
+            </select>
+          )}
           <button
             type={`${isLoading ? "button" : "submit"}`}
             onClick={onStopGeneration}

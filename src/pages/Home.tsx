@@ -5,6 +5,7 @@ import { ChatContainer } from "@/components/ChatContainer";
 export function Home() {
   const {
     messages,
+    models,
     currentMessage,
     setCurrentMessage,
     selectedModel,
@@ -21,6 +22,7 @@ export function Home() {
       <ChatForm
         currentMessage={currentMessage}
         onInputChange={setCurrentMessage}
+        models={models}
         selectedModel={selectedModel}
         onModelChange={setSelectedModel}
         onSendMessage={handleSendMessage}
