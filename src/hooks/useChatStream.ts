@@ -2,14 +2,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ApiService } from "@/services/apiService";
 import { DEFAULT_LLM_MODEL } from "@/utils";
-import type { LlmModelType, Message } from "@/utils/types";
+import type { ModelType, LlmModelType, Message } from "@/utils/types";
 
 /**
- * Main hook to manage chat
+ * Main hook to manage chat with streaming
  */
 export const useChatStream = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState<string>("");
+  const [models, setModels] = useState<ModelType[]>([]);
   const [selectedModel, setSelectedModel] =
     useState<LlmModelType>(DEFAULT_LLM_MODEL);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -20,6 +21,8 @@ export const useChatStream = () => {
   // API service initialization
   useEffect(() => {
     apiServiceRef.current = new ApiService();
+
+    apiServiceRef.current.getModels(setModels);
 
     return () => {
       apiServiceRef.current?.cleanup();
@@ -67,6 +70,20 @@ export const useChatStream = () => {
   );
 
   /**
+   * Get conversation history (excluding the AI message being generated)
+   */
+  const getConversationHistory = useCallback((): Message[] => {
+    // Only include messages that are fully loaded/completed
+    return messages.filter(msg => {
+      // Include user messages (they're always complete)
+      if (msg.role === "user") return true;
+      // Include assistant messages only if they're loaded
+      if (msg.role === "assistant") return msg.loaded === true;
+      return true;
+    });
+  }, [messages]);
+
+  /**
    * Manages message sending
    */
   const handleSendMessage = useCallback(async () => {
@@ -78,6 +95,9 @@ export const useChatStream = () => {
     // Create messages
     const userMessage = createUserMessage(currentMessage);
     const aiMessage = createAiMessagePlaceholder(selectedModel);
+
+    // Get conversation history before adding new messages
+    const conversationHistory = getConversationHistory();
 
     // Adds messages to the list
     setMessages((prev) => [...prev, userMessage, aiMessage]);
@@ -104,10 +124,11 @@ export const useChatStream = () => {
       setIsLoading(false);
     };
 
-    // Sends the message via the API service
+    // Sends the message via the API service with conversation history
     await apiServiceRef.current.sendMessage(
       userMessage.content,
       selectedModel,
+      conversationHistory,
       onMessageUpdate,
       onComplete,
       onError
@@ -118,6 +139,7 @@ export const useChatStream = () => {
     createUserMessage,
     createAiMessagePlaceholder,
     updateMessage,
+    getConversationHistory,
   ]);
 
   /**
@@ -143,6 +165,7 @@ export const useChatStream = () => {
     // State
     messages,
     currentMessage,
+    models,
     selectedModel,
     isLoading,
     error,

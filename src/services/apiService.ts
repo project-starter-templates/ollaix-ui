@@ -1,5 +1,10 @@
 import { API_BASE_URL } from "@/utils";
-import type { LlmModelType, Message } from "@/utils/types";
+import type {
+  LlmModelType,
+  Message,
+  ModelsResponseType,
+  ModelType,
+} from "@/utils/types";
 import {
   extractThinkingContent,
   parseStreamingContent,
@@ -12,11 +17,43 @@ export class ApiService {
   private abortController: AbortController | null = null;
 
   /**
+   * Converts internal messages to OpenAI format
+   */
+  private convertMessagesToOpenAI(
+    messages: Message[]
+  ): Array<{ role: string; content: string }> {
+    return messages.map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+    }));
+  }
+
+  /**
+   * Get models from the API
+   */
+  async getModels(
+    onModelsUpdate: (models: ModelType[]) => void
+  ): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/v1/models`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    const data: ModelsResponseType = await response.json();
+    onModelsUpdate(data.data);
+  }
+
+  /**
    * Sends a message to the API and processes the response in streaming mode
    */
   async sendMessage(
     message: string,
     model: LlmModelType,
+    conversationMessages: Message[],
     onMessageUpdate: (update: Partial<Message>) => void,
     onComplete: (finalMessage: Partial<Message>) => void,
     onError: (error: string) => void
@@ -30,10 +67,24 @@ export class ApiService {
     const signal = this.abortController.signal;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/chat`, {
+      // Prepare messages for OpenAI API
+      const allMessages = [
+        ...this.convertMessagesToOpenAI(conversationMessages),
+        { role: "user", content: message },
+      ];
+
+      const payload = {
+        model: model,
+        messages: allMessages,
+        stream: true,
+      };
+
+      const response = await fetch(`${API_BASE_URL}/v1/chat/completions`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, model }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
         signal,
       });
 
@@ -67,7 +118,7 @@ export class ApiService {
   }
 
   /**
-   * Stream the answer
+   * Stream the answer with OpenAI format
    */
   private async processStreamingResponse(
     response: Response,
@@ -83,6 +134,7 @@ export class ApiService {
 
     const decoder = new TextDecoder();
     let accumulatedResponseText = "";
+    let buffer = "";
 
     try {
       while (true) {
@@ -120,16 +172,57 @@ export class ApiService {
 
         // Chunk processing
         const chunk = decoder.decode(value, { stream: true });
-        accumulatedResponseText += chunk;
+        buffer += chunk;
 
-        const { thinkingContent, cleanContent, isThinkingLoading } =
-          parseStreamingContent(accumulatedResponseText);
+        // Process complete lines
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
 
-        onMessageUpdate({
-          content: cleanContent,
-          thinkingContent,
-          isThinkingLoading,
-        });
+        for (const line of lines) {
+          const trimmedLine = line.trim();
+
+          if (trimmedLine === "") continue;
+
+          if (trimmedLine.startsWith("data: ")) {
+            const dataStr = trimmedLine.slice(6);
+
+            if (dataStr === "[DONE]") {
+              // Stream finished
+              const { thinking, cleanContent } = extractThinkingContent(
+                accumulatedResponseText
+              );
+
+              onComplete({
+                content: cleanContent,
+                thinkingContent: thinking,
+                loaded: true,
+                isThinkingLoading: false,
+              });
+              return;
+            }
+
+            try {
+              const data = JSON.parse(dataStr);
+              const content = data.choices?.[0]?.delta?.content;
+
+              if (content) {
+                accumulatedResponseText += content;
+
+                const { thinkingContent, cleanContent, isThinkingLoading } =
+                  parseStreamingContent(accumulatedResponseText);
+
+                onMessageUpdate({
+                  content: cleanContent,
+                  thinkingContent,
+                  isThinkingLoading,
+                });
+              }
+            } catch (parseError) {
+              // Ignore parsing errors for individual chunks
+              console.warn("Failed to parse chunk:", dataStr);
+            }
+          }
+        }
       }
     } catch (error) {
       console.error("Error during streaming:", error);
