@@ -3,6 +3,7 @@ import {
   oneDark,
   oneLight,
 } from "react-syntax-highlighter/dist/esm/styles/prism";
+
 import { CopyButton } from "@/components/CopyButton";
 
 interface Props {
@@ -10,17 +11,11 @@ interface Props {
   isUser: boolean;
 }
 
-export function createMarkdownComponents({
-  isDarkMode,
-  isUser,
-}: Props) {
+export function createMarkdownComponents({ isDarkMode, isUser }: Props) {
   // Custom component for code
   const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
     const match = /language-(\w+)/.exec(className || "");
     const language = match ? match[1] : "";
-
-    console.log("CodeBlock props", props);
-    console.log("inline", inline);
 
     if (node.position.start.line === node.position.end.line) {
       return <InlineCode>{children}</InlineCode>;
