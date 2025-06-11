@@ -1,11 +1,16 @@
+import { useRef } from "react";
+
 import { ChatForm } from "@/components/ChatForm";
+import {
+  ChatContainer,
+  type ChatContainerRef,
+} from "@/components/ChatContainer";
+import { ModelContextProvider } from "@/context/ModelContext";
 import { useChatStream } from "@/hooks/useChatStream";
-import { ChatContainer } from "@/components/ChatContainer";
 
 export function Home() {
   const {
     messages,
-    models,
     currentMessage,
     setCurrentMessage,
     selectedModel,
@@ -16,19 +21,33 @@ export function Home() {
     handleStopGeneration,
   } = useChatStream();
 
+  const chatContainerRef = useRef<ChatContainerRef>(null);
+
+  // Wrapper for handleSendMessage that scrolls it down when a new message is sent
+  const handleSendMessageWithScroll = () => {
+    handleSendMessage();
+    chatContainerRef.current?.forceScrollToBottom();
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center h-full">
-      <ChatContainer messages={messages} isLoading={isLoading} error={error} />
-      <ChatForm
-        currentMessage={currentMessage}
-        onInputChange={setCurrentMessage}
-        models={models}
-        selectedModel={selectedModel}
-        onModelChange={setSelectedModel}
-        onSendMessage={handleSendMessage}
-        onStopGeneration={handleStopGeneration}
-        isLoading={isLoading}
-      />
-    </div>
+    <ModelContextProvider>
+      <div className="flex flex-col items-center justify-center h-full">
+        <ChatContainer
+          messages={messages}
+          isLoading={isLoading}
+          error={error}
+          ref={chatContainerRef}
+        />
+        <ChatForm
+          currentMessage={currentMessage}
+          onInputChange={setCurrentMessage}
+          selectedModel={selectedModel!}
+          onModelChange={setSelectedModel}
+          onSendMessage={handleSendMessageWithScroll}
+          onStopGeneration={handleStopGeneration}
+          isLoading={isLoading}
+        />
+      </div>
+    </ModelContextProvider>
   );
 }

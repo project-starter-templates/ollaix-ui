@@ -1,14 +1,10 @@
-import { API_BASE_URL } from "@/utils";
-import type {
-  LlmModelType,
-  Message,
-  ModelsResponseType,
-  ModelType,
-} from "@/utils/types";
+import type { Message, ModelsResponseType, ModelType } from "@/utils/types";
 import {
   extractThinkingContent,
   parseStreamingContent,
 } from "@/utils/messageParser";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * Service for managing API calls and streaming responses
@@ -44,7 +40,7 @@ export class ApiService {
       throw new Error(`API request failed with status ${response.status}`);
     }
     const data: ModelsResponseType = await response.json();
-    onModelsUpdate(data.data);
+    onModelsUpdate(data.data.sort((a, b) => b.name.localeCompare(a.name)));
   }
 
   /**
@@ -52,7 +48,7 @@ export class ApiService {
    */
   async sendMessage(
     message: string,
-    model: LlmModelType,
+    model: string,
     conversationMessages: Message[],
     onMessageUpdate: (update: Partial<Message>) => void,
     onComplete: (finalMessage: Partial<Message>) => void,
@@ -224,9 +220,12 @@ export class ApiService {
           }
         }
       }
-    } catch (error) {
-      console.error("Error during streaming:", error);
-      onError("Error processing response stream");
+    } catch (error: any) {
+      if (error.name === "AbortError") {
+        console.log("Stream reading aborted by user.");
+      } else {
+        onError("Error processing response stream");
+      }
     } finally {
       reader.releaseLock();
     }

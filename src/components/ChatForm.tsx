@@ -1,15 +1,15 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowUp, CircleStop } from "lucide-react";
 
-import type { LlmModelType, ModelType } from "@/utils/types";
+import { useModels } from "@/hooks/useModels";
+import type { ModelType } from "@/utils/types";
 
 type Props = {
   currentMessage: string;
   onInputChange: (value: string) => void;
-  models: ModelType[];
-  selectedModel: string;
-  onModelChange: (model: LlmModelType) => void;
+  selectedModel: ModelType;
+  onModelChange: (model: ModelType) => void;
   onSendMessage: () => void;
   onStopGeneration: () => void;
   isLoading: boolean;
@@ -18,7 +18,6 @@ type Props = {
 export const ChatForm = ({
   currentMessage,
   onInputChange,
-  models,
   selectedModel,
   onModelChange,
   onSendMessage,
@@ -26,7 +25,16 @@ export const ChatForm = ({
   isLoading,
 }: Props) => {
   const { t } = useTranslation();
+  const models = useModels();
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (models.length !== 0) onModelChange(models[1]);
+  }, [models]);
+
+  const getModelById = (id: string) => {
+    onModelChange(models.find((m) => m.id === id)!);
+  };
 
   const handleTextareaChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
@@ -39,16 +47,17 @@ export const ChatForm = ({
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      if (!isLoading && currentMessage && currentMessage.trim()) {
-        resizeTextarea();
-        onSendMessage();
-      }
+      sendMessage();
     }
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isLoading && currentMessage.trim()) {
+    sendMessage();
+  };
+
+  const sendMessage = () => {
+    if (!isLoading && selectedModel && currentMessage.trim()) {
       resizeTextarea();
       onSendMessage();
     }
@@ -72,24 +81,24 @@ export const ChatForm = ({
           value={currentMessage}
           onChange={handleTextareaChange}
           onKeyDown={handleKeyDown}
-          disabled={isLoading || models.length === 0}
+          disabled={isLoading || models.length === 0 || !selectedModel}
           aria-label="Message to send"
           rows={1}
           className="textarea textarea-md w-full min-h-[10px] max-h-30 resize-none border-none outline-none focus:ring-0 focus:ring-offset-0 focus:border-none focus:outline-none disabled:bg-base-100"
         />
         <div className="flex w-full justify-between">
-          {models.length === 0 ? (
+          {models.length === 0 || !selectedModel ? (
             <div className="skeleton h-6 w-35"></div>
           ) : (
             <select
               id="model"
-              value={selectedModel}
-              onChange={(e) => onModelChange(e.target.value as LlmModelType)}
+              value={selectedModel.id}
+              onChange={(e) => getModelById(e.target.value)}
               className="select w-35 border-none h-8 pl-2  disabled:bg-base-100"
               disabled={isLoading}
               aria-label="Select a model"
             >
-              {models.sort((a, b) => b.name.localeCompare(a.name)).map((model) => (
+              {models.map((model) => (
                 <option key={model.id} value={model.id}>
                   {model.name}
                 </option>
