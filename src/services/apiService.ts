@@ -1,6 +1,4 @@
-import { API_BASE_URL } from "@/utils";
 import type {
-  LlmModelType,
   Message,
   ModelsResponseType,
   ModelType,
@@ -9,6 +7,8 @@ import {
   extractThinkingContent,
   parseStreamingContent,
 } from "@/utils/messageParser";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * Service for managing API calls and streaming responses
@@ -44,7 +44,7 @@ export class ApiService {
       throw new Error(`API request failed with status ${response.status}`);
     }
     const data: ModelsResponseType = await response.json();
-    onModelsUpdate(data.data);
+    onModelsUpdate(data.data.sort((a, b) => b.name.localeCompare(a.name)));
   }
 
   /**
@@ -52,7 +52,7 @@ export class ApiService {
    */
   async sendMessage(
     message: string,
-    model: LlmModelType,
+    model: string,
     conversationMessages: Message[],
     onMessageUpdate: (update: Partial<Message>) => void,
     onComplete: (finalMessage: Partial<Message>) => void,
