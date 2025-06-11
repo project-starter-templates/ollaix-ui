@@ -1,8 +1,4 @@
-import type {
-  Message,
-  ModelsResponseType,
-  ModelType,
-} from "@/utils/types";
+import type { Message, ModelsResponseType, ModelType } from "@/utils/types";
 import {
   extractThinkingContent,
   parseStreamingContent,
@@ -224,9 +220,12 @@ export class ApiService {
           }
         }
       }
-    } catch (error) {
-      console.error("Error during streaming:", error);
-      onError("Error processing response stream");
+    } catch (error: any) {
+      if (error.name === "AbortError") {
+        console.log("Stream reading aborted by user.");
+      } else {
+        onError("Error processing response stream");
+      }
     } finally {
       reader.releaseLock();
     }

@@ -111,7 +111,7 @@ export const useChatStream = () => {
     const onError = (errorMessage: string) => {
       setError(errorMessage);
       updateMessage(aiMessage.id, {
-        content: `Erreur: ${errorMessage}`,
+        content: errorMessage,
         model: selectedModel?.id,
         isError: true,
         isThinkingLoading: false,
@@ -141,7 +141,7 @@ export const useChatStream = () => {
    * Stop the current generation
    */
   const handleStopGeneration = useCallback(() => {
-    if (apiServiceRef.current?.isRequesting && isLoading) {
+    if (apiServiceRef.current?.isRequesting) {
       apiServiceRef.current.abort();
       setIsLoading(false);
 
@@ -151,10 +151,11 @@ export const useChatStream = () => {
         updateMessage(lastMessage.id, {
           isError: true,
           isThinkingLoading: false,
+          loaded: lastMessage.content.length > 0 ? true : false,
         });
       }
     }
-  }, [isLoading, messages, updateMessage]);
+  }, [messages]);
 
   return {
     // State
