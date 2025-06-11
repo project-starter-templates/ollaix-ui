@@ -1,15 +1,16 @@
+import { useRef } from "react";
+
 import { ChatForm } from "@/components/ChatForm";
-import { useChatStream } from "@/hooks/useChatStream";
 import {
   ChatContainer,
   type ChatContainerRef,
 } from "@/components/ChatContainer";
-import { useRef } from "react";
+import { ModelContextProvider } from "@/context/ModelContext";
+import { useChatStream } from "@/hooks/useChatStream";
 
 export function Home() {
   const {
     messages,
-    models,
     currentMessage,
     setCurrentMessage,
     selectedModel,
@@ -29,23 +30,24 @@ export function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full">
-      <ChatContainer
-        messages={messages}
-        isLoading={isLoading}
-        error={error}
-        ref={chatContainerRef}
-      />
-      <ChatForm
-        currentMessage={currentMessage}
-        onInputChange={setCurrentMessage}
-        models={models}
-        selectedModel={selectedModel}
-        onModelChange={setSelectedModel}
-        onSendMessage={handleSendMessageWithScroll}
-        onStopGeneration={handleStopGeneration}
-        isLoading={isLoading}
-      />
-    </div>
+    <ModelContextProvider>
+      <div className="flex flex-col items-center justify-center h-full">
+        <ChatContainer
+          messages={messages}
+          isLoading={isLoading}
+          error={error}
+          ref={chatContainerRef}
+        />
+        <ChatForm
+          currentMessage={currentMessage}
+          onInputChange={setCurrentMessage}
+          selectedModel={selectedModel!}
+          onModelChange={setSelectedModel}
+          onSendMessage={handleSendMessageWithScroll}
+          onStopGeneration={handleStopGeneration}
+          isLoading={isLoading}
+        />
+      </div>
+    </ModelContextProvider>
   );
 }

@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ApiService } from "@/services/apiService";
-import { DEFAULT_LLM_MODEL } from "@/utils";
-import type { ModelType, LlmModelType, Message } from "@/utils/types";
+import type { Message, ModelType } from "@/utils/types";
 
 /**
  * Main hook to manage chat with streaming
@@ -10,9 +9,7 @@ import type { ModelType, LlmModelType, Message } from "@/utils/types";
 export const useChatStream = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState<string>("");
-  const [models, setModels] = useState<ModelType[]>([]);
-  const [selectedModel, setSelectedModel] =
-    useState<LlmModelType>(DEFAULT_LLM_MODEL);
+  const [selectedModel, setSelectedModel] = useState<ModelType>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,8 +18,6 @@ export const useChatStream = () => {
   // API service initialization
   useEffect(() => {
     apiServiceRef.current = new ApiService();
-
-    apiServiceRef.current.getModels(setModels);
 
     return () => {
       apiServiceRef.current?.cleanup();
@@ -57,7 +52,7 @@ export const useChatStream = () => {
    * Creates an AI placeholder message
    */
   const createAiMessagePlaceholder = useCallback(
-    (model: LlmModelType): Message => ({
+    (model: string): Message => ({
       id: crypto.randomUUID(),
       content: "",
       role: "assistant",
@@ -74,7 +69,7 @@ export const useChatStream = () => {
    */
   const getConversationHistory = useCallback((): Message[] => {
     // Only include messages that are fully loaded/completed
-    return messages.filter(msg => {
+    return messages.filter((msg) => {
       // Include user messages (they're always complete)
       if (msg.role === "user") return true;
       // Include assistant messages only if they're loaded
@@ -94,7 +89,7 @@ export const useChatStream = () => {
 
     // Create messages
     const userMessage = createUserMessage(currentMessage);
-    const aiMessage = createAiMessagePlaceholder(selectedModel);
+    const aiMessage = createAiMessagePlaceholder(selectedModel?.id!);
 
     // Get conversation history before adding new messages
     const conversationHistory = getConversationHistory();
@@ -117,7 +112,7 @@ export const useChatStream = () => {
       setError(errorMessage);
       updateMessage(aiMessage.id, {
         content: `Erreur: ${errorMessage}`,
-        model: selectedModel,
+        model: selectedModel?.id,
         isError: true,
         isThinkingLoading: false,
       });
@@ -127,7 +122,7 @@ export const useChatStream = () => {
     // Sends the message via the API service with conversation history
     await apiServiceRef.current.sendMessage(
       userMessage.content,
-      selectedModel,
+      selectedModel?.id!,
       conversationHistory,
       onMessageUpdate,
       onComplete,
@@ -165,7 +160,6 @@ export const useChatStream = () => {
     // State
     messages,
     currentMessage,
-    models,
     selectedModel,
     isLoading,
     error,
